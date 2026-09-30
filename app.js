@@ -24,11 +24,11 @@ function getMasterQuotePool() {
  * 確保依據 Seed 能進行可預測但徹底無偏見的洗牌
  */
 function mulberry32(a) {
-    return function() {
-      let t = a += 0x6D2B79F5;
-      t = Math.imul(t ^ t >>> 15, t | 1);
-      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    return function () {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
 }
 
@@ -87,7 +87,7 @@ function getPlayerQuoteSubpool() {
 
     return {
         quotes: fullPool,
-        seatName: "🎲 自動高熵獨立模式 (全庫 5000 則)",
+        seatName: "🎲 獨立模式",
         seatId: 0
     };
 }
@@ -317,7 +317,7 @@ function updateUIState() {
     // 歷史紀錄
     const historyList = document.getElementById('history-list');
     const historyCount = document.getElementById('history-count');
-    
+
     historyCount.textContent = drawn.length;
     historyList.innerHTML = '';
 
@@ -340,7 +340,7 @@ function updateUIState() {
 function openSeatModal() {
     const modal = document.getElementById('seat-modal');
     const currentSeat = getUrlSeatParameter() || parseInt(sessionStorage.getItem('player_seat_id') || '0', 10);
-    
+
     const btns = document.querySelectorAll('.seat-select-btn');
     btns.forEach((btn, idx) => {
         if (idx === currentSeat) {
@@ -377,7 +377,7 @@ function selectSeat(seatId) {
 function toggleHistory() {
     const container = document.getElementById('history-list-container');
     const header = document.querySelector('.history-header');
-    
+
     if (container.classList.contains('hidden')) {
         container.classList.remove('hidden');
         header.classList.add('open');
@@ -413,10 +413,10 @@ function openQrModal() {
 function updateQrCodeForSeat() {
     const select = document.getElementById('qr-seat-select');
     const seatId = select ? parseInt(select.value, 10) : 0;
-    
+
     const container = document.getElementById('qr-canvas-container');
     const urlText = document.getElementById('qr-url-text');
-    
+
     const baseUrl = window.location.origin + window.location.pathname;
     const targetUrl = seatId > 0 ? `${baseUrl}?p=${seatId}` : baseUrl;
 
@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentCard && drawn.length > 0) {
         cardEl.classList.remove('state-empty');
         cardEl.classList.add('state-drawn');
-        
+
         document.getElementById('mask-title-text').textContent = "🔒 台詞已抽到！";
         document.getElementById('mask-hint-text').textContent = "（點擊此框即可查看即興台詞）";
         document.getElementById('quote-text-display').textContent = currentCard;
