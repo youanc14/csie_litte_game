@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>台詞大亂鬥 - 5000則即興電子字卡系統</title>
+    <meta name="description" content="E125 現場即興台詞抽卡器 - 5,000 則龐大字卡庫，保證每位演員抽到的台詞完全不重複！">
+    <meta name="theme-color" content="#0f172a">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;900&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-red">
+    <div class="background-decorations">
+        <div class="bg-glow glow-1" id="bg-glow-1"></div>
+        <div class="bg-glow glow-2" id="bg-glow-2"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-top">
+                <span class="badge-location">📍 E125 5000則大亂鬥</span>
+                <button class="sound-toggle-btn" id="sound-btn" onclick="toggleSound()" title="聲音效果">
+                    <span id="sound-icon">🔊</span>
+                </button>
+            </div>
+            <h1 class="main-title">
+                <span class="title-highlight">台詞</span>大亂鬥
+            </h1>
+            <p class="subtitle">5,000則獨立台詞題庫 · 負責人：游安晟</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Player Seat / anti-collision status bar -->
+            <div class="info-card glass-panel">
+                <div class="seat-bar">
+                    <div class="player-tag" id="player-seat-tag">
+                        <span class="icon">👤</span> <span id="player-seat-text">演員識別：自動獨立模式</span>
+                    </div>
+                    <button class="seat-switch-btn" onclick="openSeatModal()">切換演員號碼</button>
+                </div>
+                <p class="rule-text">⚡ 已載入 5,000 則龐大台詞庫！每位演員使用獨立高熵 Seed 洗牌與題庫分流，保證完全不重複！</p>
+                <div class="deck-status-bar">
+                    <div class="status-item">
+                        <span class="status-label">抽卡進度</span>
+                        <span class="status-tag" id="drawn-status-tag">尚未抽卡</span>
+                    </div>
+                    <div class="status-item text-right">
+                        <span class="status-label">剩餘題庫卡片</span>
+                        <span class="status-value" id="remaining-count">5000 / 5000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-row">
+                <button id="draw-btn" class="btn btn-primary" onclick="drawCard()">
+                    <span class="btn-sparkle">✨</span>
+                    <span class="btn-text">隨機抽取台詞</span>
+                </button>
+
+                <button id="reset-btn" class="btn btn-secondary" onclick="resetCurrentDeck()">
+                    <span class="icon">🔄</span> 重置我的牌庫
+                </button>
+            </div>
+
+            <!-- Card Display Stage -->
+            <div class="card-stage">
+                <div id="card-element" class="brawl-card state-empty" onclick="toggleReveal()">
+                    <div class="card-inner">
+                        <!-- Front Mask (Hidden State - 防偷看) -->
+                        <div class="card-face card-mask">
+                            <div class="lock-icon-wrapper">
+                                <span class="lock-icon" id="lock-icon">🔒</span>
+                            </div>
+                            <h2 class="mask-title" id="mask-title-text">點擊「隨機抽取台詞」</h2>
+                            <p class="mask-hint" id="mask-hint-text">點擊上方按鈕抽取屬於你的即興台詞</p>
+                            <div class="card-shimmer"></div>
+                        </div>
+
+                        <!-- Back Content (Revealed State - 亮出台詞) -->
+                        <div class="card-face card-revealed">
+                            <div class="revealed-header">
+                                <span class="quote-tag" id="revealed-team-tag">🎭 你的專屬台詞</span>
+                                <span class="card-number-badge" id="card-index-badge">字卡 #1</span>
+                            </div>
+                            <div class="quote-content-wrapper">
+                                <div class="quote-mark start">“</div>
+                                <blockquote class="quote-text" id="quote-text-display">
+                                    點擊此處展開台詞
+                                </blockquote>
+                                <div class="quote-mark end">”</div>
+                            </div>
+                            <div class="revealed-footer">
+                                <p class="hide-hint">🔒 點擊卡片可再次隱藏/遮罩台詞</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card History Log -->
+            <div class="history-panel glass-panel">
+                <div class="history-header" onclick="toggleHistory()">
+                    <h3><span class="icon">📜</span> 我抽到的台詞庫 (<span id="history-count">0</span>)</h3>
+                    <span id="history-arrow" class="collapse-icon">▼</span>
+                </div>
+                <div id="history-list-container" class="history-content hidden">
+                    <ul id="history-list" class="history-ul">
+                        <!-- History Items populated dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>© 2026 台詞大亂鬥 現場即興字卡系統 · E125 專用</p>
+            <div class="footer-links">
+                <button class="footer-btn" onclick="openQrModal()">📱 現場分流 QR Code</button>
+                <button class="footer-btn" onclick="resetAllDecks()">🧹 清除個人 Session 紀錄</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Alert / Toast Modal Container -->
+    <div id="toast-modal" class="modal-overlay hidden" onclick="closeToast(event)">
+        <div class="modal-card toast-panel glass-panel" onclick="event.stopPropagation()">
+            <div class="toast-icon-wrapper" id="toast-icon-bg">
+                <span class="toast-icon" id="toast-icon">⚠️</span>
+            </div>
+            <div class="toast-body">
+                <h4 id="toast-title">提示訊息</h4>
+                <p id="toast-msg">所有台詞卡片已全部抽完</p>
+            </div>
+            <button class="toast-close-btn" onclick="closeToast()">確定</button>
+        </div>
+    </div>
+
+    <!-- Seat Selector Modal -->
+    <div id="seat-modal" class="modal-overlay hidden" onclick="closeSeatModal(event)">
+        <div class="modal-card glass-panel" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>👥 選擇演員專屬號碼</h3>
+                <button class="modal-close-btn" onclick="closeSeatModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="qr-desc">選擇演員編號，系統將自動為您分配 100% 不重疊的獨立字卡庫區段：</p>
+                <div class="seat-buttons-grid">
+                    <button class="seat-select-btn" onclick="selectSeat(0)">🎲 自動獨立隨機</button>
+                    <button class="seat-select-btn" onclick="selectSeat(1)">🎭 演員 1 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(2)">🎭 演員 2 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(3)">🎭 演員 3 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(4)">🎭 演員 4 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(5)">🎭 演員 5 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(6)">🎭 演員 6 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(7)">🎭 演員 7 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(8)">🎭 演員 8 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(9)">🎭 演員 9 號</button>
+                    <button class="seat-select-btn" onclick="selectSeat(10)">🎭 演員 10 號</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="modal-overlay hidden" onclick="closeQrModal(event)">
+        <div class="modal-card glass-panel" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>📱 現場演員掃描 QR Code</h3>
+                <button class="modal-close-btn" onclick="closeQrModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="qr-seat-tabs">
+                    <label for="qr-seat-select" style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">為指定演員生成專屬獨立 QR Code：</label>
+                    <select id="qr-seat-select" class="custom-select" onchange="updateQrCodeForSeat()">
+                        <option value="0">🎲 通用獨立隨機 QR Code</option>
+                        <option value="1">🎭 演員 1 號 專屬 QR Code</option>
+                        <option value="2">🎭 演員 2 號 專屬 QR Code</option>
+                        <option value="3">🎭 演員 3 號 專屬 QR Code</option>
+                        <option value="4">🎭 演員 4 號 專屬 QR Code</option>
+                        <option value="5">🎭 演員 5 號 專屬 QR Code</option>
+                        <option value="6">🎭 演員 6 號 專屬 QR Code</option>
+                        <option value="7">🎭 演員 7 號 專屬 QR Code</option>
+                        <option value="8">🎭 演員 8 號 專屬 QR Code</option>
+                        <option value="9">🎭 演員 9 號 專屬 QR Code</option>
+                        <option value="10">🎭 演員 10 號 專屬 QR Code</option>
+                    </select>
+                </div>
+                <div class="qr-code-box">
+                    <div id="qr-canvas-container"></div>
+                </div>
+                <p class="qr-url-text" id="qr-url-text"></p>
+                <p class="qr-tip">🔒 採用 5,000 則題庫 + 獨立加密 Seed 洗牌與演員區段分流，保證全場演員台詞 100% 絕不重複！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- QRCode JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="quotes.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
